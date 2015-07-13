@@ -133,6 +133,7 @@ class extract(object):
         with open(file, 'rb') as __file:
             for line in __file:
                 self.numbers = line.strip()
+
                 if self.regex.findall(self.numbers):
                     self.__found.append(self.numbers)
 
@@ -164,6 +165,7 @@ class extract(object):
         with open(file, 'rb') as __file:
             for line in __file:
                 self.ipv4 = line.strip()
+
                 if self.regex.findall(self.ipv4):
                     self.__found.append(self.ipv4)
 
@@ -172,13 +174,14 @@ class extract(object):
         return self.__unique.keys()
 
     def Emails(self, file):
-        mailsrch = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
+        self.regex = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
 
         with open(file, 'rb') as __file:
             for line in __file:
-                email = line.strip()
-                if mailsrch.findall(email):
-                    self.__found.append(email)
+                self.email = line.strip()
+
+                if self.regex.findall(self.email):
+                    self.__found.append(self.email)
 
         for item in self.__found:
             self.__unique[item] = 1
@@ -190,6 +193,7 @@ class extract(object):
         with open(file, 'rb') as __file:
             for line in __file:
                 self.identifiers = line.strip()
+
                 if self.regex.findall(self.identifiers):
                     self.__found.append(self.identifiers)
 
@@ -203,6 +207,7 @@ class extract(object):
         with open(file, 'rb') as __file:
             for line in __file:
                 self.token = line.strip()
+
                 if self.regex.findall(self.token):
                     self.__found.append(self.token)
 
