@@ -1,39 +1,28 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# -*- coding: binary -*-
-
 import os
 import sys
 
-class Utilities():
+class Utilities(object):
+
+    def __init__(self):
+        pass
 
     # Print data to the console
     def pi(self, pdata=''):
         print pdata
-
-    def sabc(self, argnum):
-        try:
-            if sys.argv[argnum]:
-                return True
-        except Exception:
-            return False
-
+        
     # String boolean self-check.
-    def sbc(self, fn, s): # Check if string is in a file.
+    def string_bool_check(self, file_name, string): # Check if string is in a file.
         #return a NoneType if the string is not in the file.
         #.readlines() May be a problem is database files get too large.
 
-        if os.path.exists(fn) is False:
-            MakeFile = open(fn, 'a').close()
+        if os.path.exists(file_name) is False:
+            MakeFile = open(file_name, 'a').close()
 
-        if os.path.exists(fn) is True:
+        if os.path.exists(file_name) is True:
             pass
 
-        f = open(fn, 'r')
-        f = f.readlines()
-        for i in f:
-            i = i.replace("\n", '')
-            if s.encode('utf-8') in i:
-                return True
-
-utilities = Utilities()
+        with open(file_name, 'r') as file:
+            for item in file:
+                item = item.replace("\n", '')
+                if string.decode('utf-8').encode('utf-8') in item:
+                    return True

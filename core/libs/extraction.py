@@ -1,125 +1,93 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# -*- coding: binary -*-
-
 import re
 
-class EXTRACTIONOPERATIONS():
+class extract(object):
 
-    def InstagramAccessTokens(self, fwiat):
+    def __init__(self):
+        self.__found = []
+        self.__unique = {}
 
-        found = []
-        tokensrch = re.compile(r'[0-9]{7,10}\.[0-9a-f]{5,8}\.[0-9a-f]{32}')
-        with open(fwiat, 'rb') as FileWithAccessToken:
-            for token in FileWithAccessToken:
-                token = token.replace('\n', '')
-                if tokensrch.findall(token):
-                    found.append(token)
+    def InstagramAccessTokens(self, file):
+        self.token = re.compile(r'[0-9]{7,10}\.[0-9a-f]{5,8}\.[0-9a-f]{32}')
 
-        u = {}
-        for item in found:
-            u[item] = 1
+        with open(file, 'rb') as __file:
+            for token in __file:
+                token = token.strip()
+                if self.token.findall(token):
+                    self.__found.append(token)
 
-        #returns a list of unique link(s)
-        return u.keys()
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()
 
-    # Grab Bitcoin Wallet Addresses
-    def BitcoinWalletAddress(self, fwbw):
+    def BitcoinWalletAddress(self, file):
+        self.btc = re.compile(r'(?<![a-km-zA-HJ-NP-Z0-9])[13][a-km-zA-HJ-NP-Z0-9]{26,30}(?![a-km-zA-HJ-NP-Z0-9])|(?<![a-km-zA-HJ-NP-Z0-9])[13][a-km-zA-HJ-NP-Z0-9]{33,35}(?![a-km-zA-HJ-NP-Z0-9])')
+        with open(file, 'rb') as __file:
+            for wallet in __file:
+                self.address = wallet.strip()
+                if self.btc.findall(self.address):
+                    self.__found.append(self.address)
 
-        found = [] # List of found bitcoin wallet addresses
-        btcwsrch = re.compile(r'(?<![a-km-zA-HJ-NP-Z0-9])[13][a-km-zA-HJ-NP-Z0-9]{26,30}(?![a-km-zA-HJ-NP-Z0-9])|(?<![a-km-zA-HJ-NP-Z0-9])[13][a-km-zA-HJ-NP-Z0-9]{33,35}(?![a-km-zA-HJ-NP-Z0-9])')
-        with open(fwbw, 'rb') as FileWithBitcoinAddress:
-            for wallet in FileWithBitcoinAddress:
-                wallet = wallet.replace('\n', '')
-                if btcwsrch.findall(wallet):
-                    found.append(wallet)
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()
 
-        # remove duplicate link elements
-        u = {}
-        for item in found:
-            u[item] = 1
+    def HashTypes(self, file):
+        self.md5 = re.compile(r'[0-9a-f]{32}')
+        self.sha1 = re.compile(r'[0-9a-fA-F]{40}')
+        self.sha256 = re.compile(r'[0-9a-fA-F]{64}')
+        self.sha384 = re.compile(r'[0-9a-fA-F]{96}')
+        self.sha512 = re.compile(r'[0-9a-fA-F]{128}')
 
-        #returns a list of unique link(s)
-        return u.keys()
+        with open(file, 'rb') as __file:
+            for line in __file:
+                self.hashtype = line.strip()
 
-    # Grab password hashes
-    def HashTypes(self, fohi):
+                if self.md5.findall(self.hashtype):
+                    self.__found.append(self.hashtype)
 
-        found = [] # List of found phone numbers
-        md5srch = re.compile(r'[0-9a-f]{32}')
-        sha1srch = re.compile(r'[0-9a-fA-F]{40}')
-        sha256srch = re.compile(r'[0-9a-fA-F]{64}')
-        sha384srch = re.compile(r'[0-9a-fA-F]{96}')
-        sha512srch = re.compile(r'[0-9a-fA-F]{128}')
+                if self.sha1.findall(self.hashtype):
+                    self.__found.append(self.hashtype)
 
+                if self.sha256.findall(self.hashtype):
+                    self.__found.append(self.hashtypee)
 
-        with open(fohi, 'rb') as FileWithPhoneNumbers:
-            for line in FileWithPhoneNumbers:
-                hashtype = line.replace('\n', '')
+                if self.sha384.findall(self.hashtype):
+                    self.__found.append(self.hashtype)
 
-                if md5srch.findall(hashtype):
-                    found.append(hashtype)
+                if self.sha512.findall(self.hashtype):
+                    self.__found.append(self.hashtype)
 
-                if sha1srch.findall(hashtype):
-                    found.append(hashtype)
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()
 
-                if sha256srch.findall(hashtype):
-                    found.append(hashtype)
+    def HyperLinks(self, file):
+        self.regex = re.compile(r'^((https|ftp|http|data|dav|cid|chrome|apt|cvs|bitcoin|dns|imap|irc|ldap|mailto|magnet|proxy|res|rsync|rtmp|rtsp|shttp|sftp|skype|ssh|snmp|snews|svn|telnet|tel|tftp|udp|git)://|(www|ftp)\.)[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?$')
 
-                if sha384srch.findall(hashtype):
-                    found.append(hashtype)
+        with open(file, 'rb') as __file:
+            for line in __file:
+                self.links = line.strip()
+                if self.regex.findall(self.links):
+                    self.__found.append(self.links)
 
-                if sha512srch.findall(hashtype):
-                    found.append(hashtype)
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()
 
-        # remove duplicate phone number elements
-        u = {}
-        for item in found:
-            u[item] = 1
+    def IPv6Addresses(self, file):
+        self.regex = re.compile(r"^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$")
 
-        #returns a list of unique phone number(s)
-        return u.keys()
+        with open(file, 'rb') as __file:
+            for line in __file:
+                self.ipv6 = line.strip()
+                if self.regex.findall(self.ipv6):
+                    self.__found.append(self.ipv6)
 
-    def HyperLinks(self, fowl):
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()
 
-        found = [] # List of found links
-        linksrch = re.compile(r'^((https|ftp|http|data|dav|cid|chrome|apt|cvs|bitcoin|dns|imap|irc|ldap|mailto|magnet|proxy|res|rsync|rtmp|rtsp|shttp|sftp|skype|ssh|snmp|snews|svn|telnet|tel|tftp|udp)://|(www|ftp)\.)[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?$')
-
-        with open(fowl, 'rb') as FileWithLinks:
-            for line in FileWithLinks:
-                links = line.replace('\n', '')
-                if linksrch.findall(links):
-                    found.append(links)
-
-        # remove duplicate link elements
-        u = {}
-        for item in found:
-            u[item] = 1
-
-        #returns a list of unique link(s)
-        return u.keys()
-
-    def IPv6Addresses(self, fowipv6):
-
-        found = [] # List of found ipv6 numbers
-
-        ipv6srch = re.compile(r"^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$")
-
-        with open(fowipv6, 'rb') as FileWithCCN:
-            for line in FileWithCCN:
-                ipv6addr = line.replace('\n', '')
-                if ipv6srch.findall(ipv6addr):
-                    found.append(ipv6addr)
-
-        # remove duplicate ipv6 elements
-        u = {}
-        for item in found:
-            u[item] = 1
-
-        #returns a list of unique ssn numbers
-        return u.keys()
-
-    def CreditCardNumbers(self, foccn):
+    def CreditCardNumbers(self, file):
         # Supports detection for these Credit Card Types:
 
                 # Visa
@@ -129,165 +97,115 @@ class EXTRACTIONOPERATIONS():
                 # Diners Club
                 # JCB
 
-        found = [] # List of found Credit card numbers
+        self.regex = re.compile(r'^(?:(4[0-9]{12}(?:[0-9]{3})?)|(5[1-5][0-9]{14})|(6(?:011|5[0-9]{2})[0-9]{12})|(3[47][0-9]{13})|(3(?:0[0-5]|[68][0-9])[0-9]{11})|((?:2131|1800|35[0-9]{3})[0-9]{11}))$')
 
-        ccsrch = re.compile(r'^(?:(4[0-9]{12}(?:[0-9]{3})?)|(5[1-5][0-9]{14})|(6(?:011|5[0-9]{2})[0-9]{12})|(3[47][0-9]{13})|(3(?:0[0-5]|[68][0-9])[0-9]{11})|((?:2131|1800|35[0-9]{3})[0-9]{11}))$')
+        with open(file, 'rb') as __file:
+            for line in __file:
+                self.ccns = line.strip()
+                if self.regex.findall(self.ccns):
+                    self.__found.append(self.ccns)
 
-        with open(foccn, 'rb') as FileWithCCN:
-            for line in FileWithCCN:
-                cnumbers = line.replace('\n', '')
-                if ccsrch.findall(cnumbers):
-                    found.append(cnumbers)
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()
 
-        # remove duplicate Cred card number elements
-        u = {}
-        for item in found:
-            u[item] = 1
+    def SSNs(self, file):
+        self.ssnv1 = re.compile(r'^(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}$') # USA based.
+        self.ssnv2 = re.compile(r'^(?!000|666)[0-8][0-9]{2}(?!00)[0-9]{2}(?!0000)[0-9]{4}$') # USA based.
 
-        #returns a list of unique CCN numbers
-        return u.keys()
+        with open(file, 'rb') as __file:
+            for line in __file:
+                self.numbers = line.strip()
 
-    def SSNs(self, fwssn):
+                if self.ssnv1.findall(self.numbers):
+                    self.__found.append(self.numbers)
 
-        found = [] # List of found SSN numbers
-        ssnsrch = re.compile(r'^(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}$') # USA based.
-        ssnsrch2 = re.compile(r'^(?!000|666)[0-8][0-9]{2}(?!00)[0-9]{2}(?!0000)[0-9]{4}$') # USA based.
-        with open(fwssn, 'rb') as FileWithSSN:
-            for line in FileWithSSN:
-                numbers = line.replace('\n', '')
+                if self.ssnv2.findall(self.numbers):
+                    self.__found.append(self.numbers)
 
-                if ssnsrch.findall(numbers): # adds SSN with (-) to list
-                    found.append(numbers)
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()
 
-                if ssnsrch2.findall(numbers): # adds SSN without (-) to list
-                    found.append(numbers)
+    def PhoneNumbers(self, file):
+        self.regex = re.compile(r'(\d{3})\D*(\d{3})\D*(\d{4})\D*(\d*)$')
 
-        # remove duplicate ssn elements
-        u = {}
-        for item in found:
-            u[item] = 1
+        with open(file, 'rb') as __file:
+            for line in __file:
+                self.numbers = line.strip()
+                if self.regex.findall(self.numbers):
+                    self.__found.append(self.numbers)
 
-        #returns a list of unique ssn numbers
-        return u.keys()
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()
 
-    def PhoneNumbers(self, fopn):
+    def MACs(self, file):
+        self.macv1 = re.compile(r'([0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2})')
+        self.macv2 = re.compile(r'([0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2})')
 
-        found = [] # List of found phone numbers
-        phonesrch = re.compile(r'(\d{3})\D*(\d{3})\D*(\d{4})\D*(\d*)$') # North american based.
+        with open(file, 'rb') as __file:
+            for line in __file:
+                self.mac = line.strip()
 
-        with open(fopn, 'rb') as FileWithPhoneNumbers:
-            for line in FileWithPhoneNumbers:
-                numbers = line.replace('\n', '')
-                if phonesrch.findall(numbers):
-                    found.append(numbers)
+                if self.macv1.findall(self.mac):
+                    self.__found.append(self.mac)
 
-        # remove duplicate phone number elements
-        u = {}
-        for item in found:
-            u[item] = 1
+                if self.macv2.findall(self.mac):
+                    self.__found.append(self.mac)
 
-        #returns a list of unique phone number(s)
-        return u.keys()
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()
 
-    def MACs(self, fom):
+    def IPv4Addresses(self, file):
+        self.regex = re.compile(r'([0-9]+)(?:\.[0-9]+){3}')
 
-        found = [] # List of found MAC (:, -, . deliminated) addresses
-        macsrch = re.compile(r'([0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2})')
-        macsrch1 = re.compile(r'([0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2})')
-        #macsrch1 = re.compile(r'([a-fA-F0-9]{2}\-[a-fA-F0-9]{2}\-[a-fA-F0-9]{2}\-[a-fA-F0-9]{2}\-[a-fA-F0-9]{2}\-[a-fA-F0-9]{2})')
+        with open(file, 'rb') as __file:
+            for line in __file:
+                self.ipv4 = line.strip()
+                if self.regex.findall(self.ipv4):
+                    self.__found.append(self.ipv4)
 
-        with open(fom, 'rb') as FileWithMACS:
-            for line in FileWithMACS:
-                macs = line.replace('\n', '')
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()
 
-                if macsrch.findall(macs):
-                    found.append(macs)
-
-                if macsrch1.findall(macs):
-                    found.append(macs)
-
-        # remove duplicate MAC elements
-        u = {}
-        for item in found:
-            u[item] = 1
-
-        #returns a list of unique mac addresses
-        return u.keys()
-
-
-    def IPv4Addresses(self, foi):
-
-        found = [] # List of found ipv4 addresses
-        ipv4srch = re.compile(r'([0-9]+)(?:\.[0-9]+){3}')
-
-        with open(foi, 'rb') as FileWithIPv4:
-            for line in FileWithIPv4:
-                ipv4 = line.replace('\n', '')
-                if ipv4srch.findall(ipv4):
-                    found.append(ipv4)
-
-        # remove duplicate ipv4 elements
-        u = {}
-        for item in found:
-            u[item] = 1
-
-        #returns a list of unique ipv4 addresses
-        return u.keys()
-
-    def Emails(self, foe):
-        # if passed a list of text files, will return a list of
-        # email addresses found in the files, matched according to
-        # basic address conventions. Note: supports most possible
-        # names, but not all valid ones.
-
-        found = [] # List of found emails
+    def Emails(self, file):
         mailsrch = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
 
-        with open(foe, 'rb') as FileWithEmail:
-            for line in FileWithEmail:
-                email = line.replace('\n', '')
+        with open(file, 'rb') as __file:
+            for line in __file:
+                email = line.strip()
                 if mailsrch.findall(email):
-                    found.append(email)
-            #return found | for debugging, when the code goes out of style.
+                    self.__found.append(email)
 
-        # remove duplicate email elements
-        u = {}
-        for item in found:
-            u[item] = 1
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()
 
-        #returns a list of unique email addresses
-        return u.keys()
+    def BlockchainIdentifiers(self, file):
+        self.regex = re.compile(r'[0-9a-f]{5,8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{5,13}')
 
-    def BlockchainIdentifiers(self, fobli):
+        with open(file, 'rb') as __file:
+            for line in __file:
+                self.identifiers = line.strip()
+                if self.regex.findall(self.identifiers):
+                    self.__found.append(self.identifiers)
 
-        found = [] # List of found Blockchain Developer api keys
-        mailsrch = re.compile(r'[0-9a-f]{5,8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{5,13}')
-        with open(fobli, 'rb') as FileWithBlockchainIdentifiers:
-            for line in FileWithBlockchainIdentifiers:
-                identifiers = line.strip()
-                if mailsrch.findall(identifiers):
-                    found.append(identifiers)
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()
 
-        u = {}
-        for item in found:
-            u[item] = 1
+    def FacebookAccessTokens(self, file):
+        self.regex = re.compile(r'access_token\=[0-9]{15}\|(.*){27}')
 
-        return u.keys()
+        with open(file, 'rb') as __file:
+            for line in __file:
+                self.token = line.strip()
+                if self.regex.findall(self.token):
+                    self.__found.append(self.token)
 
-    def FacebookAccessTokens(self, fofaat):
-
-        found = [] # List of found Blockchain Developer api keys
-        mailsrch = re.compile(r'access_token\=[0-9]{15}\|(.*){27}')
-        with open(fofaat, 'rb') as FacebookAccessTokens:
-            for line in FacebookAccessTokens:
-                token = line.strip()
-                if mailsrch.findall(token):
-                    found.append(token)
-
-        u = {}
-        for item in found:
-            u[item] = 1
-
-        return u.keys()
-
-extract = EXTRACTIONOPERATIONS()
+        for item in self.__found:
+            self.__unique[item] = 1
+        return self.__unique.keys()

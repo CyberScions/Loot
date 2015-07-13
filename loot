@@ -2,120 +2,215 @@
 # -*- coding: utf-8 -*-
 # -*- coding: binary -*-
 
-# Linux Bound!
-# Author: https://twitter.com/GuerrillaWF
-
 # Native imports
 import re
 import sys
 import getopt
-from core.info import Help
-from core.libs.process import output
-
-# Support access token | github | facebook
-
-# suppport a uniq option where the user uses their own regex to look for something.
+from core.libs.process import Take
 
 # TO-DO List:
+# suppport an option where the user uses their own regex to look for something.
+# Support github api_keys
 # Work on better case detection for diffent phone number formats
-# Add other country SSN Number support, GrabSSN currently only supports USA SSNs
+# Add other country SSN Number support.
 # Incorporate bitcoin pre-fixes into bitcoin grabbing function
 # Extract Bing search api keys
 
-# Bug Reports:
+# Bugs:
 # Phone number false readings.
-
-# Current Draw backs:
 # Can not grab any Bitcoin wallet addresses that are 31 - 32 characters in length.
 
 class LootRuntimeError(RuntimeError):
     pass
 
-#class LootCLI(object)
+class Loot(object):
 
-def main(IFNOARGEXISTS):
+    def __init__(self):
+        self.verbose = True
+        self.__options = {}
+        self.__take = Take()
 
-    try:
-        options, arguements = getopt.getopt(sys.argv[1:], 'f: h', [
-                                                                      'btc',
-                                                                      'blid',
-                                                                      'iat',
-                                                                      'ipv4',
-                                                                      'ipv6',
-                                                                      'link',
-                                                                      'mac',
-                                                                      'ssn',
-                                                                      'ccn',
-                                                                      'hash',
-                                                                      'phn',
-                                                                      'email',
-                                                                      'fat'
-                                                                      ]
-                                                                      )
+    def __tell(self, text, sep=' ', end='\n', stream=sys.stdout, flush=False):
+        if self.verbose or stream != sys.stdout:
+            stream.write(text)
+            if end is not None:
+                stream.write(end)
+            else:
+                if sep is not None:
+                    stream.write(sep)
+            if flush or end is None:
+                stream.flush()
+
+    def prepare(self):
+        args, commands = getopt.getopt(sys.argv[1:], 'f:')
+        args = dict(args)
+
+        if len(commands) == 1 and commands[0] in self.commands:
+            command = commands[0]
+        else:
+            # if no args or options exist, show the help.
+            command = 'help'
+            args = {}
+        # if everything checks out. Run the desired command with the desired option(s)
+        func = self.commands[command]
+
+        req_params, opt_params = func.cli_options
+        for param in req_params:
+            if param not in ('-u',) and param not in args:
+                raise TreasureRuntimError("The command '%s' requires the " \
+                                        "option '%s'. See 'help'." % \
+                                        (command, param))
+        for arg, value in args.iteritems():
+            if arg in req_params or arg in opt_params:
+
+                if arg == '-f':
+                    self.__options['file'] = value
+
+                    # Prevent messages from corrupting stdout
+                    if value == '-':
+                        self.verbose = False
+            else:
+                raise TreasureRuntimError("The command '%s' ignores the " \
+                                        "option '%s'." % (command, arg))
+
+        self.__tell("\n Loot | GuerrillaWarfare - https://github.com/GuerrillaWarfare")
 
         try:
+            func(self, **self.__options) # A wild TypeError appears from the tall grass.
+            # Will have to fix this TypeError later. Not sure what's causing it exactly.
+        except TypeError:
+            self.print_help() # For now call on the help, so they always know what to do.
 
-            try:
-                # Options w/1 arg.
-                fstopt = options[0][0]
-                fstarg = options[0][1]
+    def print_help(self):
+        """Show this message again.
+        """
+        self.__tell('Usage Loot [option(s)] [command]'
+            '\n'
+            '\n Options:'
+            '\n  -f    : File name to extract some type of content from.'
+            '\n'
+            '\n Commands:')
+        m = max([len(command) for command in self.commands])
+        for command, func in sorted(self.commands.items()):
+            self.__tell('  %s%s  : %s' % (command, \
+                                        ' ' * (m - len(command)), \
+                                        func.__doc__.split('\n')[0]))
+    print_help.cli_options = ((), ())
 
-                try:
-                    sndopt = options[1][0]
-                except IndexError:
-                    pass
+    def __iat__(self, file):
+        """Grab instagram access tokens from a file. (if any)
+        """
+        self.__take.InstagramAccessToken(file)
+    __iat__.cli_options = (('-f',), ())
 
-                if fstopt == '-h':
-                    Help()
+    def __ipv4__(self, file):
+        """Grab ipv4 addresses from a file. (if any)
+        """
+        self.__take.IPv4Addresses(file)
+    __ipv4__.cli_options = (('-f',), ())
 
-                if fstopt == '-f' and sndopt == '--btc':
-                    output.BTCAddresses(fstarg)
+    def __ipv6__(self, file):
+        """Grab ipv6 addresses from a file. (if any)
+        """
+        self.__take.IPv6Addresses(file)
+    __ipv6__.cli_options = (('-f',), ())
 
-                elif fstopt == '-f' and sndopt == '--iat':
-                    output.InstagramAccessToken(fstarg)
+    def __btc__(self, file):
+        """Grab bitcoin wallet addresses from a file. (if any)
+        """
+        self.__take.BTCAddresses(file)
+    __btc__.cli_options = (('-f',), ())
 
-                elif fstopt == '-f' and sndopt == '--ipv4':
-                    output.IPv4Addresses(fstarg)
+    def __fat__(self, file):
+        """Grab facebook access tokens from a file. (if any)
+        """
+        self.__take.FacebookAccessTokens(file)
+    __fat__.cli_options = (('-f',), ())
 
-                elif fstopt == '-f' and sndopt == '--ipv6':
-                    output.IPv6Addresses(fstarg)
+    def __bid__(self, file):
+        """Grab blockchain identifiers from a file. (if any)
+        """
+        self.__take.BlockchainIdentifiers(file)
+    __bid__.cli_options = (('-f',), ())
 
-                elif fstopt == '-f' and sndopt == '--link':
-                    output.HyperLinks(fstarg)
+    def __link__(self, file):
+        """Grab links from a file. (if any)
+        """
+        self.__take.HyperLinks(file)
+    __link__.cli_options = (('-f',), ())
 
-                elif fstopt == '-f' and sndopt == '--mac':
-                    output.MACAddresses(fstarg)
+    def __mac__(self, file):
+        """Grab mac addresses from a file. (if any)
+        """
+        self.__take.MACAddresses(file)
+    __mac__.cli_options = (('-f',), ())
 
-                elif fstopt == '-f' and sndopt == '--ssn':
-                    output.SocialSecurityNumbers(fstarg)
+    def __ssn__(self, file):
+        """Grab social security numbers from a file. (if any)
+        """
+        self.__take.SocialSecurityNumbers(file)
+    __ssn__.cli_options = (('-f',), ())
 
-                elif fstopt == '-f' and sndopt == '--ccn':
-                    output.CreditCardNumbers(fstarg)
+    def __ccn__(self, file):
+        """Grab credit card numbers from a file. (if any)
+        """
+        self.__take.CreditCardNumbers(file)
+    __ccn__.cli_options = (('-f',), ())
 
-                elif fstopt == '-f' and sndopt == '--hash':
-                    output.HashTypes(fstarg)
+    def __hashes__(self, file):
+        """Grab hash values from a file. (if any)
+        """
+        self.__take.HashTypes(file)
+    __hashes__.cli_options = (('-f',), ())
 
-                elif fstopt == '-f' and sndopt == '--phn':
-                    output.PhoneNumbers(fstarg)
+    def __phone__(self, file):
+        """Grab phone numbers from a file. (if any)
+        """
+        self.__take.PhoneNumbers(file)
+    __phone__.cli_options = (('-f',), ())
 
-                elif fstopt == '-f' and sndopt == '--email':
-                    output.Emails(fstarg)
+    def __email__(self, file):
+        """Grab email addresses from a file. (if any)
+        """
+        self.__take.Emails(file)
+    __email__.cli_options = (('-f',), ())
 
-                elif fstopt == '-f' and sndopt == '--fat':
-                    output.FacebookAccessTokens(fstarg)
+    def documentation(self):
+        """Documentation, for those who need it.
+        """
+        print """
+ ./loot -f [FILE] iat   | Grab instagram access tokens from .code.dump (if any)
+ ./loot -f [FILE] ipv4  | Grab ipv4 addresses from .code.dump (if any)
+ ./loot -f [FILE] ipv6  | Grab ipv6 addresses from .code.dump (if any)
+ ./loot -f [FILE] btc   | Grab bitcoin wallet addresses from .code.dump (if any)
+ ./loot -f [FILE] bid   | Grab blockchain identifiers from .code.dump (if any)
+ ./loot -f [FILE] fat   | Grab facebook access tokens from .code.dump (if any)
+ ./loot -f [FILE] mac   | Grab MAC addresses if any are in file.
+ ./loot -f [FILE] ssn   | Grab social security numbers if any are in file.
+ ./loot -f [FILE] ccn   | Grab credit card numbers if any are in file.
+ ./loot -f [FILE] email | Grab Email addresses if any are in file.
+ ./loot -f [FILE] hash  | Grab hash values if any are in file.
+ ./loot -f [FILE] phn   | Grab phone numbers if any are in file.
+        """
+    documentation.cli_options = ((), ())
 
-                elif fstopt == '-f' and sndopt == '--blid':
-                    output.BlockchainIdentifiers(fstarg)
-
-            except UnboundLocalError:
-                Help()
-        except IndexError:
-            pass
-    except getopt.GetoptError:
-        Help()
+    commands = {
+    'help':print_help,
+    'iat':__iat__,
+    'link':__link__,
+    'mac':__mac__,
+    'ssn':__ssn__,
+    'ccn':__ccn__,
+    'hash':__hashes__,
+    'phn':__phone__,
+    'email':__email__,
+    'ipv4':__ipv4__,
+    'ipv6':__ipv6__,
+    'btc':__btc__,
+    'bid':__bid__,
+    'fat':__fat__,
+    'docs':documentation
+    }
 
 if __name__ == "__main__":
-    try:
-        main(sys.argv[1])
-    except IndexError:
-        Help()
+    Loot().prepare()

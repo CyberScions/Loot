@@ -1,8 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# -*- coding: binary -*-
 
-class colors():
+class paint(object):
 
     # Console paint
     N = '\033[0m' #  (normal)
@@ -17,5 +14,3 @@ class colors():
     Y = '\033[1;33m' # yellow
     GR = '\033[37m' # gray
     BR = '\033[2;33m' # brown
-
-paint = colors()
