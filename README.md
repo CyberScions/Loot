@@ -1,12 +1,7 @@
 # Loot
 Sensitive information extraction tool.
 
-Platform:
----------
-- Linux
-
-What can it extract?:
----------------------
+###What can it extract?:
 1. Links
 2. Hash values
 3. Email addresses
