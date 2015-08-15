@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# -*- coding: binary -*-
 
 # Native imports
 import re
@@ -9,12 +8,12 @@ import getopt
 from core.libs.process import Take
 
 # TO-DO List:
-# suppport an option where the user uses their own regex to look for something.
 # Support github api_keys
-# Work on better case detection for diffent phone number formats
+# Extract Bing search api keys
 # Add other country SSN Number support.
 # Incorporate bitcoin pre-fixes into bitcoin grabbing function
-# Extract Bing search api keys
+# Work on better case detection for diffent phone number formats
+# suppport an option where the user uses their own regex to look for something.
 
 # Bugs:
 # Phone number false readings.
@@ -73,7 +72,7 @@ class Loot(object):
                 raise TreasureRuntimError("The command '%s' ignores the " \
                                         "option '%s'." % (command, arg))
 
-        self.__tell("\n Loot | GuerrillaWarfare - https://github.com/GuerrillaWarfare")
+        self.__tell("\nLoot | GuerrillaWarfare - https://twitter.com/GuerrillaWF")
 
         try:
             func(self, **self.__options) # A wild TypeError appears from the tall grass.
